@@ -16,6 +16,7 @@ type Adapter struct {
 	Logger Logger
 	mgr    *faktory_worker.Manager
 	ctx    context.Context
+	pool   *faktory.Pool
 }
 
 // Option is a list configuration for the
@@ -31,12 +32,27 @@ func SetConcurrency(value int) Option {
 	}
 }
 
+// SetPool Defines a pool to get from
+// the client from
+func SetPool(p *faktory.Pool) Option {
+	return func(a *Adapter) error {
+		a.pool = p
+		return nil
+	}
+
+}
+
 // New constructs a new adapter.
 func New(opts ...Option) (*Adapter, error) {
+	pool, err := faktory.NewPool(20)
+	if err != nil {
+		return nil, fmt.Errorf("could not create pool: %w", err)
+	}
 	adapter := &Adapter{
 		Logger: logrus.New(),
 		mgr:    faktory_worker.NewManager(),
 		ctx:    context.Background(),
+		pool:   pool,
 	}
 	for _, opt := range opts {
 		if err := opt(adapter); err != nil {
@@ -98,15 +114,13 @@ func (q Adapter) PerformIn(job worker.Job, t time.Duration) error {
 
 // PerformAt sends a new job to the queue, with a given start time.
 func (q *Adapter) PerformAt(h worker.Job, t time.Time) error {
-	client, err := faktory.Open()
-	if err != nil {
-		return fmt.Errorf("could not open connection: %w", err)
-	}
-	defer client.Close()
-
-	job := faktory.NewJob(h.Handler, h.Args)
-	job.Queue = h.Queue
-	job.Args = []interface{}{h.Args}
-	job.At = t.Format(time.RFC3339)
-	return client.Push(job)
+	return q.pool.With(
+		func(c *faktory.Client) error {
+			job := faktory.NewJob(h.Handler, h.Args)
+			job.Queue = h.Queue
+			job.Args = []interface{}{h.Args}
+			job.At = t.Format(time.RFC3339)
+			return c.Push(job)
+		},
+	)
 }
