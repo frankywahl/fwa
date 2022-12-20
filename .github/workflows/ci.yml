@@ -1,0 +1,39 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+name: Run tests
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Go
+        uses: actions/setup-go@v3
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Download dependencies
+        run: |
+          go mod download
+          go mod tidy -v
+
+      - name: Test
+        run: make test
+
+      - name: Vet
+        if: matrix.platform == 'ubuntu-latest'
+        run: make vet
+
+      - name: fmt
+        if: matrix.platform == 'ubuntu-latest'
+        run: make fmt
