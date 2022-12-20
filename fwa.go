@@ -84,7 +84,7 @@ func New(opts ...Option) (*Adapter, error) {
 
 // Start starts the adapter event loop.
 func (q *Adapter) Start(ctx context.Context) error {
-	q.logger.Info("Starting the workers")
+	q.logger.Infof("Starting the faktory workers\n")
 	q.ctx = ctx
 	go func() {
 		<-ctx.Done()
@@ -98,7 +98,7 @@ func (q *Adapter) Start(ctx context.Context) error {
 
 // Stop stops the adapter event loop.
 func (q *Adapter) Stop() error {
-	q.logger.Info("Stopping faktory Worker")
+	q.logger.Infof("Stopping faktory Worker\n")
 	q.mgr.Terminate(false)
 	return nil
 }
