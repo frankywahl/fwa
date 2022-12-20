@@ -12,7 +12,14 @@ import (
 	"github.com/gobuffalo/buffalo/worker"
 )
 
-var q, _ = New()
+var q = must(New())
+
+func must[T any](obj T, err error) T {
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
 
 func TestMain(m *testing.M) {
 	ctx, cancel := context.WithCancel(context.Background())
@@ -20,11 +27,9 @@ func TestMain(m *testing.M) {
 	defer cancel()
 
 	go func() {
-		select {
-		case <-ctx.Done():
-			cancel()
-			log.Fatal(ctx.Err())
-		}
+		<-ctx.Done()
+		cancel()
+		log.Fatal(ctx.Err())
 	}()
 
 	go func() {

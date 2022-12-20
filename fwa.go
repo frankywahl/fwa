@@ -8,7 +8,6 @@ import (
 	faktory "github.com/contribsys/faktory/client"
 	faktory_worker "github.com/contribsys/faktory_worker_go"
 	"github.com/gobuffalo/buffalo/worker"
-	"github.com/sirupsen/logrus"
 )
 
 // Adapter adapts faktory to use with buffalo.
@@ -22,6 +21,19 @@ type Adapter struct {
 // Option is a list configuration for the
 // workers
 type Option func(a *Adapter) error
+
+// Queues to read from. map of queue name to queue priority
+func WithQueues(queues map[string]int) Option {
+	return func(a *Adapter) error {
+		for _, v := range queues {
+			if v <= 0 {
+				return fmt.Errorf("queue priority with %d is invalid", v)
+			}
+		}
+		a.mgr.ProcessWeightedPriorityQueues(queues)
+		return nil
+	}
+}
 
 // SetConcurrency is an option that will set the
 // number of workers associated with a mgr
@@ -42,15 +54,24 @@ func SetPool(p *faktory.Pool) Option {
 
 }
 
+func WithLogger(l Logger) Option {
+	return func(a *Adapter) error {
+		a.Logger = l
+		return nil
+	}
+}
+
 // New constructs a new adapter.
 func New(opts ...Option) (*Adapter, error) {
 	pool, err := faktory.NewPool(20)
 	if err != nil {
 		return nil, fmt.Errorf("could not create pool: %w", err)
 	}
+	mgr := faktory_worker.NewManager()
+	mgr.ProcessWeightedPriorityQueues(map[string]int{"default": 1})
 	adapter := &Adapter{
-		Logger: logrus.New(),
-		mgr:    faktory_worker.NewManager(),
+		Logger: &noopLogger{},
+		mgr:    mgr,
 		ctx:    context.Background(),
 		pool:   pool,
 	}
@@ -72,20 +93,20 @@ func (q *Adapter) Start(ctx context.Context) error {
 			q.Stop()
 		}
 	}()
-	q.mgr.Run()
+	q.mgr.RunWithContext(ctx)
 	return nil
 }
 
 // Stop stops the adapter event loop.
 func (q *Adapter) Stop() error {
 	q.Logger.Info("Stopping faktory Worker")
-	q.mgr.Terminate()
+	q.mgr.Terminate(false)
 	return nil
 }
 
 // Register binds a new job, with a name and a handler.
 func (q *Adapter) Register(name string, h worker.Handler) error {
-	f := func(ctx faktory_worker.Context, args ...interface{}) error {
+	f := func(ctx context.Context, args ...interface{}) error {
 		if len(args) != 1 {
 			return fmt.Errorf("error with arguments passing")
 		}
