@@ -12,17 +12,16 @@ import (
 
 // Adapter adapts faktory to use with buffalo.
 type Adapter struct {
-	Logger Logger
+	logger Logger
 	mgr    *faktory_worker.Manager
 	ctx    context.Context
 	pool   *faktory.Pool
 }
 
-// Option is a list configuration for the
-// workers
+// Option is a list configuration for the workers
 type Option func(a *Adapter) error
 
-// Queues to read from. map of queue name to queue priority
+// Queues to read from. Map of queue name to queue priority
 func WithQueues(queues map[string]int) Option {
 	return func(a *Adapter) error {
 		for _, v := range queues {
@@ -44,8 +43,7 @@ func SetConcurrency(value int) Option {
 	}
 }
 
-// SetPool Defines a pool to get from
-// the client from
+// SetPool defines a pool to get from the client from
 func SetPool(p *faktory.Pool) Option {
 	return func(a *Adapter) error {
 		a.pool = p
@@ -54,9 +52,10 @@ func SetPool(p *faktory.Pool) Option {
 
 }
 
+// WithLogger defines a logger that the adapter will use
 func WithLogger(l Logger) Option {
 	return func(a *Adapter) error {
-		a.Logger = l
+		a.logger = l
 		return nil
 	}
 }
@@ -70,7 +69,7 @@ func New(opts ...Option) (*Adapter, error) {
 	mgr := faktory_worker.NewManager()
 	mgr.ProcessWeightedPriorityQueues(map[string]int{"default": 1})
 	adapter := &Adapter{
-		Logger: &noopLogger{},
+		logger: &noopLogger{},
 		mgr:    mgr,
 		ctx:    context.Background(),
 		pool:   pool,
@@ -85,21 +84,21 @@ func New(opts ...Option) (*Adapter, error) {
 
 // Start starts the adapter event loop.
 func (q *Adapter) Start(ctx context.Context) error {
-	q.Logger.Info("Starting the workers")
+	q.logger.Info("Starting the workers")
 	q.ctx = ctx
 	go func() {
-		select {
-		case <-ctx.Done():
-			q.Stop()
-		}
+		<-ctx.Done()
+		q.Stop()
 	}()
-	q.mgr.RunWithContext(ctx)
+	if err := q.mgr.RunWithContext(ctx); err != nil {
+		return err
+	}
 	return nil
 }
 
 // Stop stops the adapter event loop.
 func (q *Adapter) Stop() error {
-	q.Logger.Info("Stopping faktory Worker")
+	q.logger.Info("Stopping faktory Worker")
 	q.mgr.Terminate(false)
 	return nil
 }
