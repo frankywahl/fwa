@@ -21,32 +21,34 @@ func must[T any](obj T, err error) T {
 	return obj
 }
 
-func TestMain(m *testing.M) {
-	ctx, cancel := context.WithCancel(context.Background())
-	ctx, cancel = context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
+func runTests(m *testing.M) int {
+	stop, err := setupFaktory()
+	if err != nil {
+		panic(err)
+	}
+	defer stop()
 
-	go func() {
-		<-ctx.Done()
-		cancel()
-		log.Fatal(ctx.Err())
-	}()
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
 
 	go func() {
 		fmt.Println("start q")
 		err := q.Start(ctx)
 		if err != nil {
-			cancel()
 			log.Fatal(err)
 		}
 	}()
 
 	code := m.Run()
 
-	err := q.Stop()
-	if err != nil {
+	if err := q.Stop(); err != nil {
 		log.Fatal(err)
 	}
+	return code
+}
+func TestMain(m *testing.M) {
+	code := runTests(m)
 	os.Exit(code)
 }
 
