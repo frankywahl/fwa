@@ -2,7 +2,6 @@ package fwa
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -33,7 +32,6 @@ func runTests(m *testing.M) int {
 	defer cancel()
 
 	go func() {
-		fmt.Println("start q")
 		err := q.Start(ctx)
 		if err != nil {
 			log.Fatal(err)

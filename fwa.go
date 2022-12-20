@@ -12,10 +12,10 @@ import (
 
 // Adapter adapts faktory to use with buffalo.
 type Adapter struct {
-	logger Logger
-	mgr    *faktory_worker.Manager
-	ctx    context.Context
-	pool   *faktory.Pool
+	logger     Logger
+	mgr        *faktory_worker.Manager
+	pool       *faktory.Pool
+	cancelFunc context.CancelFunc
 }
 
 // Option is a list configuration for the workers
@@ -71,7 +71,6 @@ func New(opts ...Option) (*Adapter, error) {
 	adapter := &Adapter{
 		logger: &noopLogger{},
 		mgr:    mgr,
-		ctx:    context.Background(),
 		pool:   pool,
 	}
 	for _, opt := range opts {
@@ -85,11 +84,9 @@ func New(opts ...Option) (*Adapter, error) {
 // Start starts the adapter event loop.
 func (q *Adapter) Start(ctx context.Context) error {
 	q.logger.Infof("Starting the faktory workers\n")
-	q.ctx = ctx
-	go func() {
-		<-ctx.Done()
-		q.Stop()
-	}()
+	ctx, cancel := context.WithCancel(ctx)
+	q.cancelFunc = cancel
+
 	if err := q.mgr.RunWithContext(ctx); err != nil {
 		return err
 	}
@@ -99,7 +96,7 @@ func (q *Adapter) Start(ctx context.Context) error {
 // Stop stops the adapter event loop.
 func (q *Adapter) Stop() error {
 	q.logger.Infof("Stopping faktory Worker\n")
-	q.mgr.Terminate(false)
+	q.cancelFunc()
 	return nil
 }
 
