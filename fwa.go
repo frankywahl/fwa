@@ -34,6 +34,16 @@ func WithQueues(queues map[string]int) Option {
 	}
 }
 
+// WithMiddleware allows us to register faktory middleware with the functions
+//
+// This is to be used with faktory middleware.
+func WithMiddleware(m ...faktory_worker.MiddlewareFunc) Option {
+	return func(a *Adapter) error {
+		a.mgr.Use(m...)
+		return nil
+	}
+}
+
 // SetConcurrency is an option that will set the
 // number of workers associated with a mgr
 func SetConcurrency(value int) Option {
