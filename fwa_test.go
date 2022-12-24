@@ -2,16 +2,12 @@ package fwa
 
 import (
 	"context"
-	"log"
-	"os"
 	"sync"
 	"testing"
 	"time"
 
 	"github.com/gobuffalo/buffalo/worker"
 )
-
-var q = must(New())
 
 func must[T any](obj T, err error) T {
 	if err != nil {
@@ -20,37 +16,29 @@ func must[T any](obj T, err error) T {
 	return obj
 }
 
-func runTests(m *testing.M) int {
-	stop, err := setupFaktory()
-	if err != nil {
-		panic(err)
-	}
-	defer stop()
-
-	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
-	go func() {
-		err := q.Start(ctx)
-		if err != nil {
-			log.Fatal(err)
+func startAdapter(t *testing.T, ctx context.Context, options ...Option) (worker.Worker, func() error) {
+	q := must(New(options...))
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	go func() error {
+		defer wg.Done()
+		if err := q.Start(ctx); err != nil {
+			return err
 		}
+		return nil
 	}()
-
-	code := m.Run()
-
-	if err := q.Stop(); err != nil {
-		log.Fatal(err)
+	close := func() error {
+		cancel()
+		wg.Wait()
+		return nil
 	}
-	return code
-}
-func TestMain(m *testing.M) {
-	code := runTests(m)
-	os.Exit(code)
+	return q, close
 }
 
 func Test_Perform(t *testing.T) {
+	q, close := startAdapter(t, context.Background())
+	defer close()
 	hit := false
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -69,6 +57,8 @@ func Test_Perform(t *testing.T) {
 }
 
 func Test_PerformAt(t *testing.T) {
+	q, close := startAdapter(t, context.Background())
+	defer close()
 	hit := false
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
@@ -87,6 +77,8 @@ func Test_PerformAt(t *testing.T) {
 }
 
 func Test_PerformIn(t *testing.T) {
+	q, close := startAdapter(t, context.Background())
+	defer close()
 	hit := false
 	wg := &sync.WaitGroup{}
 	wg.Add(1)

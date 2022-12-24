@@ -5,6 +5,8 @@ package fwa
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"testing"
 	"time"
 
 	"github.com/ory/dockertest/v3"
@@ -68,4 +70,13 @@ func setupFaktory() (func() error, error) {
 	}
 
 	return stopFunc, nil
+}
+
+func TestMain(m *testing.M) {
+	stop, err := setupFaktory()
+	if err != nil {
+		panic(err)
+	}
+	defer stop()
+	os.Exit(m.Run())
 }

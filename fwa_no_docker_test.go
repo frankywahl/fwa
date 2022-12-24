@@ -2,7 +2,11 @@
 
 package fwa
 
-// The build constraint assumes faktory was already set up
-func setupFaktory() (func() error, error) {
-	return func() error { return nil }, nil
+import (
+	"os"
+	"testing"
+)
+
+func TestMain(m *testing.M) {
+	os.Exit(m.Run())
 }
