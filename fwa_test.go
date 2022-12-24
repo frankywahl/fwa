@@ -2,6 +2,7 @@ package fwa
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -42,14 +43,20 @@ func Test_Perform(t *testing.T) {
 	hit := false
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
-	q.Register("perform", func(worker.Args) error {
+	now := time.Now().UnixNano()
+	handlerName := fmt.Sprintf("perform_%d", now)
+	if err := q.Register(handlerName, func(worker.Args) error {
 		hit = true
 		wg.Done()
 		return nil
-	})
-	q.Perform(worker.Job{
-		Handler: "perform",
-	})
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := q.Perform(worker.Job{
+		Handler: handlerName,
+	}); err != nil {
+		t.Fatal(err)
+	}
 	wg.Wait()
 	if !hit {
 		t.Errorf("should be true")
@@ -62,14 +69,20 @@ func Test_PerformAt(t *testing.T) {
 	hit := false
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
-	q.Register("perform_at", func(args worker.Args) error {
+	now := time.Now().UnixNano()
+	handlerName := fmt.Sprintf("performAt_%d", now)
+	if err := q.Register(handlerName, func(args worker.Args) error {
 		hit = true
 		wg.Done()
 		return nil
-	})
-	q.PerformAt(worker.Job{
-		Handler: "perform_at",
-	}, time.Now().Add(5*time.Nanosecond))
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := q.PerformAt(worker.Job{
+		Handler: handlerName,
+	}, time.Now().Add(5*time.Nanosecond)); err != nil {
+		t.Fatal(err)
+	}
 	wg.Wait()
 	if !hit {
 		t.Errorf("should be true")
@@ -82,14 +95,20 @@ func Test_PerformIn(t *testing.T) {
 	hit := false
 	wg := &sync.WaitGroup{}
 	wg.Add(1)
-	q.Register("perform_in", func(worker.Args) error {
+	now := time.Now().UnixNano()
+	handlerName := fmt.Sprintf("performIn_%d", now)
+	if err := q.Register(handlerName, func(worker.Args) error {
 		hit = true
 		wg.Done()
 		return nil
-	})
-	q.PerformIn(worker.Job{
-		Handler: "perform_in",
-	}, 5*time.Nanosecond)
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := q.PerformIn(worker.Job{
+		Handler: handlerName,
+	}, 5*time.Nanosecond); err != nil {
+		t.Fatal(err)
+	}
 	wg.Wait()
 	if !hit {
 		t.Errorf("should be true")
