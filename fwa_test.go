@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	faktory "github.com/contribsys/faktory/client"
 	"github.com/gobuffalo/buffalo/worker"
 )
 
@@ -112,5 +113,35 @@ func Test_PerformIn(t *testing.T) {
 	wg.Wait()
 	if !hit {
 		t.Errorf("should be true")
+	}
+}
+
+func Test_Middleware(t *testing.T) {
+	wg := &sync.WaitGroup{}
+	wg.Add(1)
+	middleCount := 0
+	middleFunc := func(ctx context.Context, job *faktory.Job, next func(ctx context.Context) error) error {
+		middleCount++
+		return next(ctx)
+	}
+	q, close := startAdapter(t, context.Background(), WithMiddleware(middleFunc))
+	defer close()
+	now := time.Now().UnixNano()
+	handlerName := fmt.Sprintf("perform_%d", now)
+	if err := q.Register(handlerName, func(worker.Args) error {
+		defer wg.Done()
+		// Does nothing
+		return nil
+	}); err != nil {
+		t.Fatal(err)
+	}
+	if err := q.PerformIn(worker.Job{
+		Handler: handlerName,
+	}, 1*time.Second); err != nil {
+		t.Fatal(err)
+	}
+	wg.Wait()
+	if middleCount != 1 {
+		t.Errorf("expected to hit the middleware 1, hit it %d times", middleCount)
 	}
 }
