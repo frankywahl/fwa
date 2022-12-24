@@ -18,10 +18,10 @@ type Adapter struct {
 	cancelFunc context.CancelFunc
 }
 
-// Option is a list configuration for the workers
+// Option is a list configuration for the workers.
 type Option func(a *Adapter) error
 
-// Queues to read from. Map of queue name to queue priority
+// WithQueues sets the queues read from. Map of queue name to queue priority.
 func WithQueues(queues map[string]int) Option {
 	return func(a *Adapter) error {
 		for _, v := range queues {
@@ -45,7 +45,7 @@ func WithMiddleware(m ...faktory_worker.MiddlewareFunc) Option {
 }
 
 // SetConcurrency is an option that will set the
-// number of workers associated with a mgr
+// number of workers associated with a manager.
 func SetConcurrency(value int) Option {
 	return func(a *Adapter) error {
 		a.mgr.Concurrency = value
@@ -53,7 +53,7 @@ func SetConcurrency(value int) Option {
 	}
 }
 
-// SetPool defines a pool to get from the client from
+// SetPool defines a pool to get from the client from.
 func SetPool(p *faktory.Pool) Option {
 	return func(a *Adapter) error {
 		a.pool = p
@@ -62,7 +62,7 @@ func SetPool(p *faktory.Pool) Option {
 
 }
 
-// WithLogger defines a logger that the adapter will use
+// WithLogger defines a logger that the adapter will use.
 func WithLogger(l Logger) Option {
 	return func(a *Adapter) error {
 		a.logger = l
@@ -129,7 +129,7 @@ func (q *Adapter) Register(name string, h worker.Handler) error {
 	return nil
 }
 
-// Perform sends a new job to the queue
+// Perform sends a new job to the queue.
 func (q *Adapter) Perform(h worker.Job) error {
 	return q.PerformAt(h, time.Now())
 }
