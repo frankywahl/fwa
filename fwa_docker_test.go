@@ -73,10 +73,14 @@ func setupFaktory() (func() error, error) {
 }
 
 func TestMain(m *testing.M) {
+	os.Exit(runMain(m))
+}
+
+func runMain(m *testing.M) int {
 	stop, err := setupFaktory()
 	if err != nil {
 		panic(err)
 	}
 	defer stop()
-	os.Exit(m.Run())
+	return m.Run()
 }
