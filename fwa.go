@@ -18,75 +18,25 @@ type Adapter struct {
 	cancelFunc context.CancelFunc
 }
 
-// Option is a list configuration for the workers.
-type Option func(a *Adapter) error
-
-// WithQueues sets the queues read from. Map of queue name to queue priority.
-func WithQueues(queues map[string]int) Option {
-	return func(a *Adapter) error {
-		for _, v := range queues {
-			if v <= 0 {
-				return fmt.Errorf("queue priority with %d is invalid", v)
-			}
-		}
-		a.mgr.ProcessWeightedPriorityQueues(queues)
-		return nil
-	}
-}
-
-// WithMiddleware allows us to register faktory middleware with the functions
-//
-// This is to be used with faktory middleware.
-func WithMiddleware(m ...faktory_worker.MiddlewareFunc) Option {
-	return func(a *Adapter) error {
-		a.mgr.Use(m...)
-		return nil
-	}
-}
-
-// SetConcurrency is an option that will set the
-// number of workers associated with a manager.
-func SetConcurrency(value int) Option {
-	return func(a *Adapter) error {
-		a.mgr.Concurrency = value
-		return nil
-	}
-}
-
-// SetPool defines a pool to get from the client from.
-func SetPool(p *faktory.Pool) Option {
-	return func(a *Adapter) error {
-		a.pool = p
-		return nil
-	}
-
-}
-
-// WithLogger defines a logger that the adapter will use.
-func WithLogger(l Logger) Option {
-	return func(a *Adapter) error {
-		a.logger = l
-		return nil
-	}
-}
-
 // New constructs a new adapter.
 func New(opts ...Option) (*Adapter, error) {
-	pool, err := faktory.NewPool(20)
+	config := newConfig()
+	for _, opt := range opts {
+		if err := opt.apply(config); err != nil {
+			return nil, fmt.Errorf("could not apply options: %w", err)
+		}
+	}
+	pool, err := faktory.NewPool(config.concurrency)
 	if err != nil {
 		return nil, fmt.Errorf("could not create pool: %w", err)
 	}
 	mgr := faktory_worker.NewManager()
-	mgr.ProcessWeightedPriorityQueues(map[string]int{"default": 1})
+	mgr.Use(config.middlewares...)
+	mgr.ProcessWeightedPriorityQueues(config.queues)
 	adapter := &Adapter{
-		logger: &noopLogger{},
+		logger: config.logger,
 		mgr:    mgr,
 		pool:   pool,
-	}
-	for _, opt := range opts {
-		if err := opt(adapter); err != nil {
-			return nil, fmt.Errorf("could not apply options: %w", err)
-		}
 	}
 	return adapter, nil
 }
