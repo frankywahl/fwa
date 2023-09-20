@@ -15,8 +15,8 @@ github.com/cilium/ebpf v0.7.0/go.mod h1:/oI2+1shJiTGAMgl6/RgJr36Eo1jzrRcAWbcXO2u
 github.com/containerd/console v1.0.3/go.mod h1:7LqA/THxQ86k76b8c/EMSiaJ3h1eZkMkXar0TQ1gf3U=
 github.com/containerd/continuity v0.3.0 h1:nisirsYROK15TAMVukJOUyGJjz4BNQJBVsNvAXZJ/eg=
 github.com/containerd/continuity v0.3.0/go.mod h1:wJEAIwKOm/pBZuBd0JmeTvnLquTB1Ag8espWhkykbPM=
-github.com/contribsys/faktory v1.7.0 h1:VTNFxvTSWZHCJ+/OQ5G4UZWWiC7QXBsp4RKJ4HGwHkY=
-github.com/contribsys/faktory v1.7.0/go.mod h1:p5Nt6QJeyUpu9coFOpLO0VaEVUZeybJWRHLvIyxovow=
+github.com/contribsys/faktory v1.8.0 h1:Rkxdph/1Tv9g60J8pyO2F7jKao77sRECh7HDBhgtuvI=
+github.com/contribsys/faktory v1.8.0/go.mod h1:SP+Y2Pr+JqLY9YJL3YNlJhdzTinm/oUe2CcOpwDHQR0=
 github.com/contribsys/faktory_worker_go v1.6.1 h1:ErFrulG2gcCtj6ew5H8MposJfjQ++OBvA51HY6yCiRY=
 github.com/contribsys/faktory_worker_go v1.6.1/go.mod h1:BjJ6VZLnp8ji/bA3mFABNy+BI2pEgTEGb7mXPdyui+E=
 github.com/coreos/go-systemd/v22 v22.3.2/go.mod h1:Y58oyj3AT4RCenI/lSvhwexgC+NSVTIJ3seZv2GcEnc=
