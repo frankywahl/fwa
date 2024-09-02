@@ -1,6 +1,6 @@
 module github.com/frankywahl/fwa
 
-go 1.19
+go 1.23
 
 require (
 	github.com/contribsys/faktory v1.8.0
