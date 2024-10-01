@@ -3,7 +3,7 @@ module github.com/frankywahl/fwa
 go 1.23
 
 require (
-	github.com/contribsys/faktory v1.8.0
+	github.com/contribsys/faktory v1.9.1
 	github.com/contribsys/faktory_worker_go v1.7.0
 	github.com/gobuffalo/buffalo v1.1.0
 	github.com/ory/dockertest/v3 v3.11.0

@@ -15,8 +15,8 @@ github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK3
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/containerd/continuity v0.4.3 h1:6HVkalIp+2u1ZLH1J/pYX2oBVXlJZvh1X1A7bEZ9Su8=
 github.com/containerd/continuity v0.4.3/go.mod h1:F6PTNCKepoxEaXLQp3wDAjygEnImnZ/7o4JzpodfroQ=
-github.com/contribsys/faktory v1.8.0 h1:Rkxdph/1Tv9g60J8pyO2F7jKao77sRECh7HDBhgtuvI=
-github.com/contribsys/faktory v1.8.0/go.mod h1:SP+Y2Pr+JqLY9YJL3YNlJhdzTinm/oUe2CcOpwDHQR0=
+github.com/contribsys/faktory v1.9.1 h1:iHR54Kl4akiZPchVNRMQHxGGyUphr9g2lRNjBYssrvc=
+github.com/contribsys/faktory v1.9.1/go.mod h1:1NEfRDZhKDd8tdd7Hg+51QjGrnWFtD28AQQ/EZ82a5c=
 github.com/contribsys/faktory_worker_go v1.7.0 h1:YSZRj/nSjn+2ms9ooHIOHAahHJehXutgD46b+0lHDP4=
 github.com/contribsys/faktory_worker_go v1.7.0/go.mod h1:JRw4PvanwLgX5IIQazw6W5zg/Rg7/Fg6YrkdH4gJJPc=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
