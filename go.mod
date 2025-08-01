@@ -5,7 +5,7 @@ go 1.24
 toolchain go1.24.1
 
 require (
-	github.com/contribsys/faktory v1.9.2
+	github.com/contribsys/faktory v1.9.3
 	github.com/contribsys/faktory_worker_go v1.7.0
 	github.com/gobuffalo/buffalo v1.1.2
 	github.com/ory/dockertest/v3 v3.12.0
