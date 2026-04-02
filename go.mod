@@ -1,11 +1,11 @@
 module github.com/frankywahl/fwa
 
-go 1.25
+go 1.25.0
 
 require (
 	github.com/contribsys/faktory v1.9.4
 	github.com/contribsys/faktory_worker_go v1.7.0
-	github.com/gobuffalo/buffalo v1.1.3
+	github.com/gobuffalo/buffalo v1.1.4
 	github.com/ory/dockertest/v3 v3.12.0
 )
 
@@ -45,5 +45,5 @@ require (
 	go.opentelemetry.io/otel/metric v1.35.0 // indirect
 	go.opentelemetry.io/otel/trace v1.35.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/sys v0.36.0 // indirect
 )
